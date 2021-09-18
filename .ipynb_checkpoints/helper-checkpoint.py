@@ -1,3 +1,5 @@
+import numpy as np
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
@@ -18,18 +20,12 @@ class Net(nn.Module):
         self.fc3 = nn.Linear(84, 10)
 
     def forward(self, x):
-        # Max pooling over a (2, 2) window
-#         x = x.double()
         x = F.max_pool2d(F.relu(self.conv1(x)), 2) # max_pool2d(__,2) halves the height and width
-#         x = F.max_pool2d(F.leaky_relu(self.conv1(x), 0.01), (2, 2)) #trying with leaky
         # If the size is a square, you can specify with a single number
         x = F.max_pool2d(F.relu(self.conv2(x)), 2)
-#         x = F.max_pool2d(F.leaky_relu(self.conv2(x), 0.01), 2) # trying with leaky
         x = torch.flatten(x, 1) # flatten all dimensions except the batch dimension
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
-#         x = F.leaky_relu(self.fc1(x), 0.01)
-#         x = F.leaky_relu(self.fc2(x), 0.01)
         x = self.fc3(x)
         return x
     
@@ -62,7 +58,6 @@ def multi_acc(y_pred, y_test):
     
     correct_pred = (y_pred_tags == y_test).float()
     acc = correct_pred.sum() / len(correct_pred)
-    
     acc = torch.round(acc * 100)
     
     return acc
